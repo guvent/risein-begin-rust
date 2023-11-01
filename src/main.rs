@@ -1,61 +1,68 @@
-use log::error;
-
 fn main() {
+    let bank1 = BankAccount{
+        account_number: "123".to_string(),
+        holder_name: "Alice".to_string(),
+        balance: 100.0,
+    };
 
-    let add = Operation::Add(4.0,5.0).calc();
-    let sub = Operation::Subtract(5.0, 2.2).calc();
-    let mul = Operation::Multiply(3.0, 4.0).calc();
-    let div = Operation::Divide(4.0, 2.0).calc();
+    let bank2 = BankAccount{
+        account_number: "456".to_string(),
+        holder_name: "Bob".to_string(),
+        balance: 120.0,
+    };
 
-    match add {
-        Ok(res) => println!("{}", res),
-        Err(err) => println!("Error: {}", err)
-    }
+    let bank3 = BankAccount{
+        account_number: "789".to_string(),
+        holder_name: "John".to_string(),
+        balance: 330.0,
+    };
 
-    match sub {
-        Ok(res) => println!("{}", res),
-        Err(err) => println!("Error: {}", err)
-    }
+    let mut accounts: Vec<Box<BankAccount>> = Vec::new();
+    accounts.push(Box::new(bank1));
+    accounts.push(Box::new(bank2));
+    accounts.push(Box::new(bank3));
 
-    match mul {
-        Ok(res) => println!("{}", res),
-        Err(err) => println!("Error: {}", err)
-    }
 
-    match div {
-        Ok(res) => println!("{}", res),
-        Err(err) => println!("Error: {}", err)
-    }
+    for mut account in accounts {
+        let deposit = account.deposit();
+        let withdraw = account.withdraw(10.0);
+        let balance = account.balance();
 
-    let div_err = Operation::Divide(4.0, 0.0).calc();
-
-    match div_err {
-        Ok(res) => println!("{}", res),
-        Err(err) => println!("Error: {}", err)
+        println!("Deposit: {}", deposit);
+        println!("Withdraw: {}", withdraw);
+        println!("Balance: {}", balance);
     }
 
 }
 
-enum Operation {
-    Add(f64, f64),
-    Subtract(f64, f64),
-    Multiply(f64, f64),
-    Divide(f64, f64)
+trait Account {
+    type BankAccount;
+    fn deposit(&self) -> String;
+    fn withdraw(&mut self, amount: f32) -> f32;
+    fn balance(&self) -> f32;
 }
 
-impl Operation {
-    fn calc(&self) -> Result<f64, String> {
-        match self {
-            Operation::Add(a, b) => Ok(a + b),
-            Operation::Subtract(a, b) => Ok(a - b),
-            Operation::Multiply(a, b) => Ok(a * b),
-            Operation::Divide(a, b) => {
-                if b <= &0.0 {
-                    Err("Second number must than zero!".to_string())
-                } else {
-                    Ok(a / b)
-                }
-            }
-        }
+struct BankAccount {
+    account_number: String,
+    holder_name: String,
+    balance: f32,
+}
+
+impl Account for BankAccount {
+    type BankAccount = ();
+
+    fn deposit(&self) -> String {
+        self.account_number.to_string()
+    }
+
+    fn withdraw(&mut self, amount: f32) -> f32 {
+        self.balance -= amount;
+        self.balance
+    }
+
+    fn balance(&self) -> f32 {
+        self.balance
     }
 }
+
+

@@ -96,6 +96,8 @@ impl Rectangle {
     }
 }
 
+
+
 ///// ENUMS //////
 
 fn main() {
@@ -176,6 +178,8 @@ enum Animal {
     BIRD(String),
     FISH(String)
 }
+
+
 
 ///// OPTIONS & RESULT //////
 
@@ -262,6 +266,8 @@ fn calc_triangle_area(base: Option<f64>, height: Option<f64>) -> Result<f64, Str
     }
 }
 
+
+
 ///// COMMON COLLECTIONS //////
 
 use std::collections::HashMap;
@@ -330,6 +336,5 @@ fn vectors() {
     // don't need derive(Debug) for array object...
     println!("{:?}", slice)
 }
-
 
 
