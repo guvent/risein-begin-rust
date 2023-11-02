@@ -1,68 +1,55 @@
 fn main() {
-    let bank1 = BankAccount{
-        account_number: "123".to_string(),
-        holder_name: "Alice".to_string(),
-        balance: 100.0,
+
+    let collect: Vec<i32> = vec![4,5,6,7,8];
+
+    let filter: FilterCondition = FilterCondition{
+        filtering: vec![1,2,3,4,5,6,7,8],
     };
 
-    let bank2 = BankAccount{
-        account_number: "456".to_string(),
-        holder_name: "Bob".to_string(),
-        balance: 120.0,
-    };
+    let has_found = filter.is_match(4);
+    let not_found = filter.is_match(14);
 
-    let bank3 = BankAccount{
-        account_number: "789".to_string(),
-        holder_name: "John".to_string(),
-        balance: 330.0,
-    };
-
-    let mut accounts: Vec<Box<BankAccount>> = Vec::new();
-    accounts.push(Box::new(bank1));
-    accounts.push(Box::new(bank2));
-    accounts.push(Box::new(bank3));
+    println!("Has Found ({}): {}", 4, has_found);
+    println!("Not Found ({}): {}", 14, not_found);
 
 
-    for mut account in accounts {
-        let deposit = account.deposit();
-        let withdraw = account.withdraw(10.0);
-        let balance = account.balance();
+    let filtered = filter.custom_filter(collect);
 
-        println!("Deposit: {}", deposit);
-        println!("Withdraw: {}", withdraw);
-        println!("Balance: {}", balance);
-    }
+    println!("{:?}", filtered);
+
 
 }
 
-trait Account {
-    type BankAccount;
-    fn deposit(&self) -> String;
-    fn withdraw(&mut self, amount: f32) -> f32;
-    fn balance(&self) -> f32;
+struct FilterCondition {
+    filtering: Vec<i32>
 }
 
-struct BankAccount {
-    account_number: String,
-    holder_name: String,
-    balance: f32,
+impl FilterCondition {
+    fn is_match(&self, x: i32) -> bool {
+        let mut result = false;
+        let filtering = &self.filtering;
+
+        for item in filtering {
+            if x == *item {
+                result = true;
+            }
+        }
+
+        result
+    }
+
+    fn custom_filter(&self, xs: Vec<i32>) -> Vec<i32> {
+        let mut filtered = Vec::new();
+        let filtering = &self.filtering;
+
+        for item in filtering {
+            for x in &xs {
+                if *x == *item {
+                    filtered.push(*x)
+                }
+            }
+        }
+
+        filtered
+    }
 }
-
-impl Account for BankAccount {
-    type BankAccount = ();
-
-    fn deposit(&self) -> String {
-        self.account_number.to_string()
-    }
-
-    fn withdraw(&mut self, amount: f32) -> f32 {
-        self.balance -= amount;
-        self.balance
-    }
-
-    fn balance(&self) -> f32 {
-        self.balance
-    }
-}
-
-
