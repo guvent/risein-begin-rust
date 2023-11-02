@@ -1,55 +1,97 @@
+use std::io::Error;
+use std::ptr::null;
+
 fn main() {
-
-    let collect: Vec<i32> = vec![4,5,6,7,8];
-
-    let filter: FilterCondition = FilterCondition{
-        filtering: vec![1,2,3,4,5,6,7,8],
+    let bank1 = BankAccount{
+        account_number: "123".to_string(),
+        holder_name: "Alice".to_string(),
+        balance: 100.0,
     };
 
-    let has_found = filter.is_match(4);
-    let not_found = filter.is_match(14);
+    let bank2 = BankAccount{
+        account_number: "456".to_string(),
+        holder_name: "Bob".to_string(),
+        balance: 120.0,
+    };
 
-    println!("Has Found ({}): {}", 4, has_found);
-    println!("Not Found ({}): {}", 14, not_found);
+    let bank3 = BankAccount{
+        account_number: "789".to_string(),
+        holder_name: "John".to_string(),
+        balance: 330.0,
+    };
+
+    let mut accounts: Vec<Box<BankAccount>> = Vec::new();
+    accounts.push(Box::new(bank1));
+    accounts.push(Box::new(bank2));
+    accounts.push(Box::new(bank3));
 
 
-    let filtered = filter.custom_filter(collect);
+    for mut account in accounts {
+        let deposit = account.deposit();
+        let withdraw = account.withdraw(10.0);
+        let balance = account.get_balance();
 
-    println!("{:?}", filtered);
-
-
-}
-
-struct FilterCondition {
-    filtering: Vec<i32>
-}
-
-impl FilterCondition {
-    fn is_match(&self, x: i32) -> bool {
-        let mut result = false;
-        let filtering = &self.filtering;
-
-        for item in filtering {
-            if x == *item {
-                result = true;
-            }
+        match deposit {
+            Ok(msg) => println!("Deposit: {}", msg),
+            Err(err) => panic!("Deposit Error! {}", err)
         }
 
-        result
-    }
-
-    fn custom_filter(&self, xs: Vec<i32>) -> Vec<i32> {
-        let mut filtered = Vec::new();
-        let filtering = &self.filtering;
-
-        for item in filtering {
-            for x in &xs {
-                if *x == *item {
-                    filtered.push(*x)
-                }
-            }
+        match withdraw {
+            Ok(msg) => println!("Withdraw: {}", msg),
+            Err(err) => panic!("Withdraw Error! {}", err)
         }
 
-        filtered
+        match balance {
+            Ok(msg) => println!("Balance: {}", msg),
+            Err(err) => panic!("Balance Error! {}", err)
+        }
+    }
+
+}
+
+trait Account {
+    type BankAccount;
+    fn deposit(&self) -> Result<String, String>;
+    fn withdraw(&mut self, amount: f32) -> Result<f32, String>;
+    fn get_balance(&self) -> Result<f32, String>;
+}
+
+struct BankAccount {
+    account_number: String,
+    holder_name: String,
+    balance: f32,
+}
+
+impl Account for BankAccount {
+    type BankAccount = ();
+
+    fn deposit(&self) -> Result<String, String> {
+        if self.account_number == "" {
+            return Err("Invalid Account!".to_string());
+        }
+        Ok(self.account_number.to_string())
+    }
+
+    fn withdraw(&mut self, amount: f32) -> Result<f32, String> {
+        if self.account_number == "" {
+            return Err("Invalid Account!".to_string());
+        }
+
+        if self.balance < 0.0 {
+            return Err("Invalid account balance!".to_string());
+        }
+
+        self.balance -= amount;
+        Ok(self.balance)
+    }
+
+    fn get_balance(&self) -> Result<f32, String> {
+        if self.account_number == "" {
+            return Err("Invalid Account!".to_string());
+        }
+
+        Ok(self.balance)
     }
 }
+
+
